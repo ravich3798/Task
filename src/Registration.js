@@ -7,8 +7,17 @@ import './App.css'
     firstName: yup.string().required("Only String allowed"),
     age: yup.number().positive().integer().required("Enter Valid DOB or Age"),
     sex: yup.string().required("Select Gender"),
-    contact: yup.number().positive().integer().length(10).required("Enter Valid Contact Number")
-    // confirmPassword: yup.string().oneOf([yup.ref("password"), null])
+    contact: yup.string().min(10).max(10).required("Enter Valid Contact Number"),
+    emergencyContact: yup.string().min(10).max(10).required("Enter Valid Contact Number"),
+    idtype: yup.string().required(),
+    aadhaar: yup.string().when("idtype",{
+        is: (idtype)=>idtype===true,
+        then: yup.string().min(12).max(12).required()
+    }),
+    pan: yup.string().when("idtype",{
+        is: "pan",
+        then: yup.string().min(10).max(10).required()
+    })
 })
 function Registration(){
     const {register, handleSubmit, formState: {errors}}=useForm({
@@ -33,13 +42,17 @@ function Registration(){
             <option value="Transgender">Transgender</option>
         </select>
         <p>{errors.sex?.message}</p></div>
-        <div>Mobile<span className="mandatoryField">*</span><input type="text" placeholder="Enter Mobile" {...register("contact")}/>
+        <div>Mobile<span className="mandatoryField">*</span><input type="number" minLength="10" placeholder="Enter Mobile" {...register("contact")}/>
         <p>{errors.contact?.message}</p>
         </div>
-        <div>Govt Issued ID<select>
+        <div>Govt Issued ID<select {...register("idtype")}>
                 <option value="aadhaar">Aadhaar</option>
                 <option value="pan">PAN</option>
-            </select></div><div><input type="text" placeholder="Enter Govt ID" {...register("id")}/></div>
+            </select></div><div><input type="text" placeholder="Enter Govt ID" {...register("id")}/>
+            <p>{errors.idtype?.message}</p>
+            <p>{errors.aadhaar?.message}</p>
+            <p>{errors.pan?.message}</p>
+        </div>
         </div>
         <br/>
         <div><b><u>Contact Details</u></b></div>
@@ -56,7 +69,8 @@ function Registration(){
                 Email <input type="text" placeholder="Enter Email" {...register("email")}/>
             </div>
             <div>
-                Emergency Contact Number <input type="text" placeholder="Enter Emegency No" {...register("emergencyContact")}/>
+                Emergency Contact Number <input type="number" placeholder="Enter Emegency No" {...register("emergencyContact")}/>
+                <p>{errors.emergencyContact?.message}</p>
             </div>
         </div>
         <br/>
