@@ -1,36 +1,37 @@
 import { useEffect, useState } from "react";
 import Datatable from "react-data-table-component";
+import { Link } from "react-router-dom";
 
 function List(){
     const [data,setData]=useState();
     const column=[
     {
         name: "Name",
-        selector: (row) => row.firstName
+        selector: (row) => row.firstname
     },
     {
-        name: "Age/Sex",
-        selector: row=>row.firstName
+        name: "Age",
+        selector: row=>row.age
     },
     {
         name: "Mobile",
-        selector: row=>row.firstName
+        selector: row=>row.mobile
     },
     {
         name: "Address",
-        selector: row=>row.firstName
+        selector: row=>row.address
     },
     {
         name: "Govt ID",
-        selector: row=>row.firstName
+        selector: row=>row.id
     },
     {
         name: "Guardian Details",
-        selector: row=>row.firstName
+        selector: row=>row.guardian
     },
     {
         name: "Nationality",
-        selector: row=>row.firstName
+        selector: row=>row.nationality
     },
 ]
     useEffect(() => {
@@ -41,20 +42,22 @@ function List(){
         setData(data)});
     }, []);
     const tempArr=[];
-    for(const key in data){
+    for(const a in data){
         tempArr.push({
-            firstname: data[key].firstName,
-            age: data[key].age,
-            mobile: data[key].contact,
-            address: data[key].address,
-            id: data[key].id,
-            guardian: data[key].guardian,
-            nationality: data[key].nationality,
+            firstname: data[a].firstName,
+            age: data[a].age,
+            mobile: data[a].contact,
+            address: data[a].address,
+            id: data[a].id,
+            guardian: data[a].guardian,
+            nationality: data[a].nationality,
         })
     }
-    //setData(tempArr)
-    console.log(tempArr)
-    return <Datatable columns={column} data={tempArr}/>
-    
+    return (<div><Datatable title="Records" columns={column} data={tempArr} pagination fixedHeader fixedHeaderScrollHeight="450px"/>
+    <Link to="/">
+            <button className="button">Back</button>
+        </Link>
+    </div>
+    )
 }
 export default List

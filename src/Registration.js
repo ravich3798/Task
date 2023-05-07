@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
-import './App.css'
+import './App.css';
+import { Link } from "react-router-dom";
 
   const schema=yup.object().shape({
     firstName: yup.string().required("Only String allowed"),
@@ -9,22 +10,39 @@ import './App.css'
     sex: yup.string().required("Select Gender"),
     contact: yup.string().min(10).max(10).required("Enter Valid Contact Number"),
     emergencyContact: yup.string().min(10).max(10).required("Enter Valid Contact Number"),
-    idtype: yup.string().required(),
-    aadhaar: yup.string().when("idtype",{
-        is: (idtype)=>idtype===true,
-        then: yup.string().min(12).max(12).required()
-    }),
-    pan: yup.string().when("idtype",{
-        is: "pan",
-        then: yup.string().min(10).max(10).required()
+    address: yup.string().min(10).required(),
+    guardian: yup.string().required(),
+    nationality: yup.string().required(),
+    idtype: yup.string().required("Select ID"),
+    id: yup.string().when(['idtype'],{
+        is: (idtype)=>idtype==='pan',
+        then: ()=>yup.string().min(10).max(10).required("Pan must be of length 10"),
+        otherwise: ()=>yup.string().min(12).max(12).required("Aadhaar must be of length 12")
     })
 })
+
 function Registration(){
     const {register, handleSubmit, formState: {errors}}=useForm({
         resolver: yupResolver(schema),
     })
     const onSubmit=(data)=>{
-        console.log(data);
+            const url = "https://task-6808d-default-rtdb.firebaseio.com/testtask.json"; // Replace <YOUR-FIREBASE-APP> with your Firebase app name
+            fetch(url, {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                            headers: {
+                                            "Content-Type": "application/json",
+                                    },
+                        })
+                        .then((response) => response.json())
+                        .then((responseData) => {
+                            alert("Data successfully posted");
+                            //console.log("Data successfully posted to Firebase", responseData);
+                        })
+                        .catch((error) => {
+                            console.error("Error posting data to Firebase: ", error);
+                        });
+        //console.log(data);
     }
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -40,26 +58,24 @@ function Registration(){
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Transgender">Transgender</option>
-        </select>
-        <p>{errors.sex?.message}</p></div>
+        </select></div>
+        <p>{errors.sex?.message}</p>
         <div>Mobile<span className="mandatoryField">*</span><input type="number" minLength="10" placeholder="Enter Mobile" {...register("contact")}/>
         <p>{errors.contact?.message}</p>
         </div>
         <div>Govt Issued ID<select {...register("idtype")}>
                 <option value="aadhaar">Aadhaar</option>
                 <option value="pan">PAN</option>
-            </select></div><div><input type="text" placeholder="Enter Govt ID" {...register("id")}/>
-            <p>{errors.idtype?.message}</p>
-            <p>{errors.aadhaar?.message}</p>
-            <p>{errors.pan?.message}</p>
+            </select><input type="number" placeholder="Enter Govt ID" {...register("id")}/>
+            <p>{errors.id?.message}</p>
         </div>
         </div>
-        <br/>
+        
         <div><b><u>Contact Details</u></b></div>
         <br/>
         <div className="gridStyle">
             <div>
-                Guardian Details<select>
+                Guardian Details<select {...register("guardian")}>
                     <option value="Father">Father</option>
                     <option value="Mother">Mother</option>
                 </select>
@@ -80,6 +96,7 @@ function Registration(){
             <div>
                 Address
                 <input type="text" placeholder="Enter Address" {...register("address")}/>
+                <p>{errors.address?.message}</p>
             </div>
             <div>
                 State <select>
@@ -96,10 +113,12 @@ function Registration(){
                 </select>
             </div>
             <div>
+                <br/>
                 Country
                 <input type="text" value="India" {...register("country")}/>
             </div>
             <div>
+                <br/>
                 Pincode
                 <input type="text" placeholder="Enter Pincode" {...register("pincode")}/>
             </div>
@@ -136,11 +155,16 @@ function Registration(){
                 </select>
             </div>
             <div>
-                Nationality<input type="text" value="Indian"/>
+                <br/>
+                Nationality<input type="text" value="Indian" {...register("nationality")}/>
             </div>
         </div>
-        <input type="reset"/>
-        <input type="submit"/>
+        <Link to="/List">
+            <button className="button">List</button>
+        </Link>
+        <input  className="button" type="submit"/>
+        <input  className="button" type="reset" value="Cancel"/>
+        <br/>
         </div>
         </form>
     )
